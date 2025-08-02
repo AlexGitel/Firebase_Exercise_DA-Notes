@@ -1,67 +1,87 @@
 import { Injectable, inject } from '@angular/core';
 import { Note } from '../interfaces/note.interface';
-import { Firestore, collection, doc, onSnapshot } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  doc,
+  onSnapshot,
+  addDoc,
+} from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NoteListService {
-  notes: Note[] = [];
-  trashNotes: Note[] = [];
+  allNotes: Note[] = [];
+  trashedNotes: Note[] = [];
 
-  unsubNotes;
-  unsubTrash;
+  unsubscribeNotes;
+  unsubscribeTrash;
 
   firestore: Firestore = inject(Firestore);
 
   constructor() {
-    this.unsubNotes = this.subNotesList();
-    this.unsubTrash = this.subTrashList();
+    this.unsubscribeNotes = this.subscribeToNotes();
+    this.unsubscribeTrash = this.subscribeToTrashNotes();
   }
 
   ngOnDestroy() {
-    this.unsubNotes();
-    this.unsubTrash();
+    this.unsubscribeNotes();
+    this.unsubscribeTrash();
   }
 
-  subNotesList() {
-    return onSnapshot(this.getNotesRef(), (list) => {
-      this.notes = [];
-      list.forEach(element => {
-        this.notes.push(this.setNoteObject(element.data(), element.id));
+  subscribeToNotes() {
+    return onSnapshot(this.getNotesCollectionRef(), (list) => {
+      this.allNotes = [];
+      list.forEach((element) => {
+        this.allNotes.push(this.createNoteFromData(element.data(), element.id));
       });
     });
   }
 
-  subTrashList() {
-    return onSnapshot(this.getTrashNotesRef(), (list) => {
-      this.trashNotes = [];
-      list.forEach(element => {
-        this.trashNotes.push(this.setNoteObject(element.data(), element.id));
+  subscribeToTrashNotes() {
+    return onSnapshot(this.getTrashCollectionRef(), (list) => {
+      this.trashedNotes = [];
+      list.forEach((element) => {
+        this.trashedNotes.push(
+          this.createNoteFromData(element.data(), element.id)
+        );
       });
     });
   }
 
-  setNoteObject(obj: any, id: string): Note {
+  createNoteFromData(obj: any, id: string): Note {
     return {
       id: id,
-      type: obj.type || "note",
-      title: obj.title || "",
-      content: obj.content || "",
-      marked: obj.marked || false
-    }
+      type: obj.type || 'note',
+      title: obj.title || '',
+      content: obj.content || '',
+      marked: obj.marked || false,
+    };
   }
 
-  getNotesRef() {
+  getNotesCollectionRef() {
     return collection(this.firestore, 'Notes');
   }
 
-  getTrashNotesRef() {
+  getTrashCollectionRef() {
     return collection(this.firestore, 'Trash');
   }
 
-  getSingleDocRef(collecId: string, docId: string) {
-    return doc(collection(this.firestore, collecId), docId);
+  // um auf einzelnen Dokument zuzugreifen, nicht auf ganze Kollektion
+
+  // getSingleDocRef(collecId: string, docId: string) {
+  //   return doc(collection(this.firestore, collecId), docId);
+  // }
+
+  async addNote(item: Note) {
+    await addDoc(this.getNotesCollectionRef(), item)
+      .catch((err) => {
+        console.error(err);
+      })
+      .then((docRef) => {
+        console.log('Document written by ID:', docRef?.id);
+      });
   }
 }
