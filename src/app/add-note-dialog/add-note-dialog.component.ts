@@ -24,14 +24,14 @@ export class AddNoteDialogComponent {
     this.addDialogClosed.emit(false);
   }
 
-  addNote() {
+  addNewNote() {
     let note: Note = {
       type: 'note',
       title: this.title,
       content: this.description,
       marked: false,
     };
-    this.noteService.addNote(note);
+    this.noteService.addNewNote(note);
     this.closeDialog();
   }
 }

@@ -26,13 +26,8 @@ export class NoteListService {
     this.unsubscribeTrash = this.subscribeToTrashNotes();
   }
 
-  ngOnDestroy() {
-    this.unsubscribeNotes();
-    this.unsubscribeTrash();
-  }
-
   subscribeToNotes() {
-    return onSnapshot(this.getNotesCollectionRef(), (list) => {
+    return onSnapshot(this.getNotesCollection(), (list) => {
       this.allNotes = [];
       list.forEach((element) => {
         this.allNotes.push(this.createNoteFromData(element.data(), element.id));
@@ -41,7 +36,7 @@ export class NoteListService {
   }
 
   subscribeToTrashNotes() {
-    return onSnapshot(this.getTrashCollectionRef(), (list) => {
+    return onSnapshot(this.getTrashCollection(), (list) => {
       this.trashedNotes = [];
       list.forEach((element) => {
         this.trashedNotes.push(
@@ -61,27 +56,30 @@ export class NoteListService {
     };
   }
 
-  getNotesCollectionRef() {
+  // beende
+  ngOnDestroy() {
+    this.unsubscribeNotes();
+    this.unsubscribeTrash();
+  }
+
+  // gib mir zurück vom Firebase meine collection unter Notes
+  getNotesCollection() {
     return collection(this.firestore, 'Notes');
   }
 
-  getTrashCollectionRef() {
+  getTrashCollection() {
     return collection(this.firestore, 'Trash');
   }
 
-  // um auf einzelnen Dokument zuzugreifen, nicht auf ganze Kollektion
+  // damit neue Notiz in Firebase Collection erstellen
+  async addNewNote(item: Note) {
+    await addDoc(this.getNotesCollection(), item).catch((err) => {
+      console.error(err);
+    });
 
-  // getSingleDocRef(collecId: string, docId: string) {
-  //   return doc(collection(this.firestore, collecId), docId);
-  // }
-
-  async addNote(item: Note) {
-    await addDoc(this.getNotesCollectionRef(), item)
-      .catch((err) => {
-        console.error(err);
-      })
-      .then((docRef) => {
-        console.log('Document written by ID:', docRef?.id);
-      });
+    // um in der console zu zeigen welche ID
+    // .then((docRef) => {
+    //   console.log('Document written by ID:', docRef?.id);
+    // });
   }
 }
