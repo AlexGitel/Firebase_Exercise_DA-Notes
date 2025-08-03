@@ -4,14 +4,9 @@
         <textarea [(ngModel)]="note.content"></textarea>
     }
     @if(!edit){
-        <h3>
-            {{note.title}}
-        </h3>
-        <p>
-            {{note.content}}
-        </p>
+        <h3>{{note.title}}</h3>
+        <p>{{note.content}}</p>
     }
-
 
     <div class="adjustments_wrapper">
         <div>

@@ -4,6 +4,7 @@ import {
   Firestore,
   collection,
   doc,
+  updateDoc,
   onSnapshot,
   addDoc,
 } from '@angular/fire/firestore';
@@ -76,10 +77,62 @@ export class NoteListService {
     await addDoc(this.getNotesCollection(), item).catch((err) => {
       console.error(err);
     });
-
     // um in der console zu zeigen welche ID
     // .then((docRef) => {
     //   console.log('Document written by ID:', docRef?.id);
     // });
   }
+
+  async updateNote(note: Note) {
+    if (note.id) {
+      let docRef = this.getSingleDocument(this.getCollectionIdFromNote(note), note.id)
+      await updateDoc(docRef, this.getCleanJson(note)).catch(
+        (err) => {
+          console.log(err);
+        })
+    }
+  }
+
+  // Hilfsfunktion
+  getCleanJson(note: Note): {} {
+    return {
+      type: note.type,
+      title: note.title,
+      content: note.content,
+      marked: note.marked,
+    }
+  }
+
+  // Hilfsfunktion
+  getCollectionIdFromNote(note: Note) {
+    if (note.type == 'note') {
+      return 'Notes'
+    } else {
+      return 'Trash'
+    }
+  }
+
+  getSingleDocument(collId: string, docId: string) {
+    return doc(collection(this.firestore, collId), docId);
+  }
+
+  // vereinfachste Variante ohne Hilfsfunktionen
+
+  //   async updateNote(note: Note) {
+  //   if (note.id) {
+  //     const collId = note.type === 'note' ? 'Notes' : 'Trash';
+  //     const docRef = doc(collection(this.firestore, collId), note.id);
+
+  //     await updateDoc(docRef, {
+  //       type: note.type,
+  //       title: note.title,
+  //       content: note.content,
+  //       marked: note.marked,
+  //     }).catch((err) => {
+  //       console.log(err);
+  //     });
+  //   }
+  // }
+
+
 }
