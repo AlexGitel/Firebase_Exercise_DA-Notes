@@ -16,7 +16,7 @@ export class AddNoteDialogComponent {
   title = '';
   description = '';
 
-  constructor(private noteService: NoteListService) {}
+  constructor(private noteService: NoteListService) { }
 
   closeDialog() {
     this.title = '';
@@ -24,14 +24,14 @@ export class AddNoteDialogComponent {
     this.addDialogClosed.emit(false);
   }
 
-  addNewNote() {
+  addToAllNotes() {
     let note: Note = {
       type: 'note',
       title: this.title,
       content: this.description,
       marked: false,
     };
-    this.noteService.addNewNote(note);
+    this.noteService.addNewNote(note, "Notes");
     this.closeDialog();
   }
 }

@@ -7,6 +7,7 @@ import {
   updateDoc,
   onSnapshot,
   addDoc,
+  deleteDoc
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
@@ -72,16 +73,33 @@ export class NoteListService {
     return collection(this.firestore, 'Trash');
   }
 
-  // damit neue Notiz in Firebase Collection erstellen
-  async addNewNote(item: Note) {
-    await addDoc(this.getNotesCollection(), item).catch((err) => {
-      console.error(err);
-    });
-    // um in der console zu zeigen welche ID
-    // .then((docRef) => {
-    //   console.log('Document written by ID:', docRef?.id);
-    // });
+  async deleteNote(collId: "Notes" | "Trash", docId: string) {
+    await deleteDoc(this.getSingleDocument(collId, docId)).catch(
+      (err) => { console.log(err) })
   }
+
+  async addNewNote(item: Note, collId: "Notes" | "Trash") {
+    if (collId === "Notes") {
+      await addDoc(this.getNotesCollection(), item).catch((err) => {
+        console.error(err);
+      });
+    } else {
+      await addDoc(this.getTrashCollection(), item).catch((err) => {
+        console.error(err);
+      });
+    }
+  }
+
+  // damit neue Notiz in Firebase Collection erstellen
+  // async addNewNote(item: Note) {
+  //   await addDoc(this.getNotesCollection(), item).catch((err) => {
+  //     console.error(err);
+  //   });
+  //   // um in der console zu zeigen welche ID
+  //   // .then((docRef) => {
+  //   //   console.log('Document written by ID:', docRef?.id);
+  //   // });
+  // }
 
   async updateNote(note: Note) {
     if (note.id) {
@@ -133,6 +151,4 @@ export class NoteListService {
   //     });
   //   }
   // }
-
-
 }
