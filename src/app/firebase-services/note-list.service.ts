@@ -1,13 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Note } from '../interfaces/note.interface';
 import {
-  Firestore,
-  collection,
-  doc,
-  updateDoc,
-  onSnapshot,
-  addDoc,
-  deleteDoc
+  Firestore, collection, doc, updateDoc, onSnapshot,
+  addDoc, deleteDoc, query, orderBy, limit, where
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
@@ -17,19 +12,24 @@ import { Observable } from 'rxjs';
 export class NoteListService {
   allNotes: Note[] = [];
   trashedNotes: Note[] = [];
+  markedNotes: Note[] = [];
 
   unsubscribeNotes;
   unsubscribeTrash;
+  unsubscribeMarkedNotes;
 
   firestore: Firestore = inject(Firestore);
 
   constructor() {
     this.unsubscribeNotes = this.subscribeToNotes();
     this.unsubscribeTrash = this.subscribeToTrashNotes();
+    this.unsubscribeMarkedNotes = this.subscribeMarkedNotes();
   }
 
   subscribeToNotes() {
-    return onSnapshot(this.getNotesCollection(), (list) => {
+    const q = query(this.getNotesCollection(), orderBy('title'), limit(20));
+    // orderBy('title') -> funktioniert zusammen mit where("", "==", "") nicht.
+    return onSnapshot(q, (list) => {
       this.allNotes = [];
       list.forEach((element) => {
         this.allNotes.push(this.createNoteFromData(element.data(), element.id));
@@ -48,6 +48,17 @@ export class NoteListService {
     });
   }
 
+  subscribeMarkedNotes() {
+    const q = query(this.getNotesCollection(), where("marked", "==", true), limit(20));
+    // wo Limit - wieviel Notizen darstellen, where - zeigt markierte Notizen
+    return onSnapshot(q, (list) => {
+      this.markedNotes = [];
+      list.forEach((element) => {
+        this.markedNotes.push(this.createNoteFromData(element.data(), element.id));
+      });
+    });
+  }
+
   createNoteFromData(obj: any, id: string): Note {
     return {
       id: id,
@@ -62,6 +73,7 @@ export class NoteListService {
   ngOnDestroy() {
     this.unsubscribeNotes();
     this.unsubscribeTrash();
+    this.unsubscribeMarkedNotes();
   }
 
   // gib mir zurück vom Firebase meine collection unter Notes
@@ -78,7 +90,8 @@ export class NoteListService {
       (err) => { console.log(err) })
   }
 
-  async addNewNote(item: Note, collId: "Notes" | "Trash") {
+  // damit neue Notiz in Firebase Collection erstellen
+  async createNewNote(item: Note, collId: "Notes" | "Trash") {
     if (collId === "Notes") {
       await addDoc(this.getNotesCollection(), item).catch((err) => {
         console.error(err);
@@ -87,19 +100,12 @@ export class NoteListService {
       await addDoc(this.getTrashCollection(), item).catch((err) => {
         console.error(err);
       });
+      //  um in der console zu zeigen welche ID
+      // .then((docRef) => {
+      //   console.log('Document written by ID:', docRef?.id);
+      // });
     }
   }
-
-  // damit neue Notiz in Firebase Collection erstellen
-  // async addNewNote(item: Note) {
-  //   await addDoc(this.getNotesCollection(), item).catch((err) => {
-  //     console.error(err);
-  //   });
-  //   // um in der console zu zeigen welche ID
-  //   // .then((docRef) => {
-  //   //   console.log('Document written by ID:', docRef?.id);
-  //   // });
-  // }
 
   async updateNote(note: Note) {
     if (note.id) {
@@ -133,22 +139,4 @@ export class NoteListService {
   getSingleDocument(collId: string, docId: string) {
     return doc(collection(this.firestore, collId), docId);
   }
-
-  // vereinfachste Variante ohne Hilfsfunktionen
-
-  //   async updateNote(note: Note) {
-  //   if (note.id) {
-  //     const collId = note.type === 'note' ? 'Notes' : 'Trash';
-  //     const docRef = doc(collection(this.firestore, collId), note.id);
-
-  //     await updateDoc(docRef, {
-  //       type: note.type,
-  //       title: note.title,
-  //       content: note.content,
-  //       marked: note.marked,
-  //     }).catch((err) => {
-  //       console.log(err);
-  //     });
-  //   }
-  // }
 }

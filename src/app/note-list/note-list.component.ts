@@ -17,12 +17,18 @@ export class NoteListComponent {
   favFilter: 'all' | 'fav' = 'all';
   status: 'notes' | 'trash' = 'notes';
 
-  constructor(private noteService: NoteListService) {}
+  constructor(private noteService: NoteListService) { }
 
   getList(): Note[] {
-    return this.status === 'trash'
-      ? this.noteService.trashedNotes
-      : this.noteService.allNotes;
+    if (this.status == 'notes') {
+      if (this.favFilter == 'all') {
+        return this.noteService.allNotes;
+      } else {
+        return this.noteService.markedNotes;
+      }
+    } else {
+      return this.noteService.trashedNotes;
+    }
   }
 
   changeFavFilter(filter: 'all' | 'fav') {

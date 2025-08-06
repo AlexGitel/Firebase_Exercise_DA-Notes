@@ -43,7 +43,7 @@ export class NoteComponent {
       this.note.type = 'trash';
       let docId = this.note.id; // Dokument ID wird aut.zugefügt, darum
       delete this.note.id; // Satz ist nötig um Dokument id aus Notiz raus zu löschen 
-      this.noteService.addNewNote(this.note, "Trash");
+      this.noteService.createNewNote(this.note, "Trash");
       this.noteService.deleteNote('Notes', docId);
     }
   }
@@ -53,7 +53,7 @@ export class NoteComponent {
       this.note.type = 'note';
       let docId = this.note.id; // Dokument ID wird aut.zugefügt, darum
       delete this.note.id; // Satz ist nötig um Dokument id aus Notiz raus zu löschen 
-      this.noteService.addNewNote(this.note, "Notes");
+      this.noteService.createNewNote(this.note, "Notes");
       this.noteService.deleteNote('Trash', docId);
     }
   }
