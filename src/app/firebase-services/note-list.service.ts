@@ -31,10 +31,10 @@ export class NoteListService {
 
     //Notiz in Notizen bei Datenbank;
     this.unsubNoteInNotesTest = this.subNoteInNotesTest();
-}
+  }
 
-// zugriff auf unterordner im Hauptordner durch path: "myNotes/MMWJQfKugxuuy3CgW6jX/note_in-Notes"
-  subNoteInNotesTest(){
+  // zugriff auf Unterordner im Hauptordner durch path: "myNotes/MMWJQfKugxuuy3CgW6jX/note_in-Notes"
+  subNoteInNotesTest() {
     let ref = collection(this.firestore, "myNotes/MMWJQfKugxuuy3CgW6jX/note_in-Notes");
     const q = query(ref, limit(7));
     return onSnapshot(q, (list) => {
