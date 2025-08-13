@@ -12,10 +12,12 @@ export class NoteListService {
   allNotes: Note[] = [];
   trashedNotes: Note[] = [];
   markedNotes: Note[] = [];
+  note_in_Notes: Note[] = [];
 
   unsubscribeNotes;
   unsubscribeTrash;
   unsubscribeMarkedNotes;
+  unsubNoteInNotesTest;
 
   firestore: Firestore = inject(Firestore);
 
@@ -26,7 +28,23 @@ export class NoteListService {
     // durch den code, werden markierte als erste nach Alphabet
     // und Große Buchstabe aussortiert und gezeigt
     this.unsubscribeMarkedNotes = this.subscribeMarkedNotes();
+
+    //Notiz in Notizen bei Datenbank;
+    this.unsubNoteInNotesTest = this.subNoteInNotesTest();
+}
+
+// zugriff auf unterordner im Hauptordner durch path: "myNotes/MMWJQfKugxuuy3CgW6jX/note_in-Notes"
+  subNoteInNotesTest(){
+    let ref = collection(this.firestore, "myNotes/MMWJQfKugxuuy3CgW6jX/note_in-Notes");
+    const q = query(ref, limit(7));
+    return onSnapshot(q, (list) => {
+      this.note_in_Notes = [];
+      list.forEach((element) => {
+        this.note_in_Notes.push(this.createNoteFromData(element.data(), element.id));
+      });
+    });
   }
+
 
   subscribeToNotes() {
     const q = query(this.getNotesCollection(), orderBy('title'), limit(7));
@@ -78,6 +96,7 @@ export class NoteListService {
     this.unsubscribeNotes();
     this.unsubscribeTrash();
     this.unsubscribeMarkedNotes();
+    this.unsubNoteInNotesTest();
   }
 
   // gib mir zurück vom Firebase meine collection unter Notes
