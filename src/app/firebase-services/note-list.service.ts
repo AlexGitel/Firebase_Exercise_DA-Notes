@@ -4,7 +4,6 @@ import {
   Firestore, collection, doc, updateDoc, onSnapshot,
   addDoc, deleteDoc, query, orderBy, limit, where
 } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -23,12 +22,17 @@ export class NoteListService {
   constructor() {
     this.unsubscribeNotes = this.subscribeToNotes();
     this.unsubscribeTrash = this.subscribeToTrashNotes();
+
+    // durch den code, werden markierte als erste nach Alphabet
+    // und Große Buchstabe aussortiert und gezeigt
     this.unsubscribeMarkedNotes = this.subscribeMarkedNotes();
   }
 
   subscribeToNotes() {
-    const q = query(this.getNotesCollection(), orderBy('title'), limit(20));
+    const q = query(this.getNotesCollection(), orderBy('title'), limit(7));
     // orderBy('title') -> funktioniert zusammen mit where("", "==", "") nicht.
+    // sortiert zwar nach Alphabet, aber GROßE Buchstabe wird zuerst gestellt
+    //  auch wenn es keine Alphabet reihe nach ist!!!!
     return onSnapshot(q, (list) => {
       this.allNotes = [];
       list.forEach((element) => {
@@ -100,10 +104,6 @@ export class NoteListService {
       await addDoc(this.getTrashCollection(), item).catch((err) => {
         console.error(err);
       });
-      //  um in der console zu zeigen welche ID
-      // .then((docRef) => {
-      //   console.log('Document written by ID:', docRef?.id);
-      // });
     }
   }
 
