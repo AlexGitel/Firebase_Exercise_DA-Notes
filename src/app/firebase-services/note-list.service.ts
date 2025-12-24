@@ -1,8 +1,17 @@
 import { Injectable, inject } from '@angular/core';
 import { Note } from '../interfaces/note.interface';
 import {
-  Firestore, collection, doc, updateDoc, onSnapshot,
-  addDoc, deleteDoc, query, orderBy, limit, where
+  Firestore, 
+  collection, 
+  doc, 
+  updateDoc, 
+  onSnapshot,
+  addDoc, 
+  deleteDoc, 
+  query, 
+  orderBy, 
+  limit, 
+  where
 } from '@angular/fire/firestore';
 
 @Injectable({
