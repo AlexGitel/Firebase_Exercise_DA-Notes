@@ -108,7 +108,7 @@ export class NoteListService {
     this.unsubNoteInNotesTest();
   }
 
-  // gib mir zurück vom Firebase meine collection unter Notes
+  // gib mir zurück vom Firebase meine collection unter Notes und Trash
   getNotesCollection() {
     return collection(this.firestore, 'Notes');
   }
