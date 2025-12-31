@@ -108,13 +108,17 @@ export class NoteListService {
     this.unsubNoteInNotesTest();
   }
 
-  // gib mir zurück vom Firebase meine collection unter Notes und Trash
+  // gib vom Firebase collection Notes
   getNotesCollection() {
     return collection(this.firestore, 'Notes');
   }
-
+  // gib vom Firebase collection Trash
   getTrashCollection() {
     return collection(this.firestore, 'Trash');
+  }
+
+  getSingleDocument(collId: string, docId: string) {
+    return doc(collection(this.firestore, collId), docId);
   }
 
   async deleteNote(collId: "Notes" | "Trash", docId: string) {
@@ -162,9 +166,5 @@ export class NoteListService {
     } else {
       return 'Trash'
     }
-  }
-
-  getSingleDocument(collId: string, docId: string) {
-    return doc(collection(this.firestore, collId), docId);
   }
 }
